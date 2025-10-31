@@ -20,6 +20,7 @@ const Products = lazy(() => import("./pages/products/products"));
 const ImageUpload = lazy(() => import("./pages/image-upload/image-upload"));
 const Orders = lazy(() => import("./pages/orders/orders"));
 const TestLayout = lazy(() => import("./pages/test-layout"));
+const Buyback = lazy(() => import("./pages/buyback/buyback"));
 
 const Router = () => {
   return (
@@ -28,7 +29,7 @@ const Router = () => {
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
+   
         {/* Root redirect based on token */}
         <Route
           path="/"
@@ -92,6 +93,17 @@ const Router = () => {
             </PrivateRoute>
           }
         />
+        <Route
+  path="/buyback"
+  element={
+    <PrivateRoute>
+      <AppLayout>
+        <Buyback />
+      </AppLayout>
+    </PrivateRoute>
+  }
+/>
+
         <Route
           path="/test-layout"
           element={

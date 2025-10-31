@@ -41,12 +41,19 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       icon: ShoppingCart,
       path: "/orders"
     },
-    {
+  
+     {
+      title: "Buyback",
+      icon: ShoppingCart,
+      path: "/buyback",
+ 
+    },
+      {
       title: "Logout",
       icon: LogOut,
       path: "/logout",
       onClick: handleLogout,
-    }
+    },
   ];
 
   const isActive = (path) => {
