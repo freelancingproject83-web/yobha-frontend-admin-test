@@ -21,6 +21,8 @@ const ImageUpload = lazy(() => import("./pages/image-upload/image-upload"));
 const Orders = lazy(() => import("./pages/orders/orders"));
 const TestLayout = lazy(() => import("./pages/test-layout"));
 const Buyback = lazy(() => import("./pages/buyback/buyback"));
+const CreateCareerJob = lazy(() => import("./pages/careers/create-job"));
+const CareerJobs = lazy(() => import("./pages/careers/jobs"));
 
 const Router = () => {
   return (
@@ -89,6 +91,26 @@ const Router = () => {
             <PrivateRoute>
               <AppLayout>
                 <Orders />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/career/jobs"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <CareerJobs />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/career/create"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <CreateCareerJob />
               </AppLayout>
             </PrivateRoute>
           }

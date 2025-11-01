@@ -1,13 +1,14 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { 
-  Package, 
+import {
+  Package,
   Plus,
   Upload,
   ShoppingCart,
-  LogOut
+  LogOut,
+  Briefcase,
+  FilePlus2,
 } from "lucide-react";
-import { LocalStorageKeys } from "../../constants/localStorageKeys";
 import * as localStorageService from "../../service/localStorageService";
 
 const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) => {
@@ -41,6 +42,16 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       icon: ShoppingCart,
       path: "/orders"
     },
+    {
+      title: "Career Jobs",
+      icon: Briefcase,
+      path: "/career/jobs"
+    },
+    {
+      title: "Create Job",
+      icon: FilePlus2,
+      path: "/career/create"
+    },
   
      {
       title: "Buyback",
@@ -48,7 +59,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       path: "/buyback",
  
     },
-      {
+    {
       title: "Logout",
       icon: LogOut,
       path: "/logout",
@@ -78,9 +89,9 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
 
       {/* Sidebar */}
       <div className={`
-        ${isCollapsed ? 'w-16' : 'w-64'}
+        ${isCollapsed ? 'w-64 lg:w-16' : 'w-64 lg:w-64'}
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        fixed lg:relative top-0 left-0 h-screen bg-white border-r border-gray-200 z-50 lg:z-auto
+        fixed lg:relative top-0 left-0 min-h-screen lg:h-auto lg:min-h-full bg-white border-r border-gray-200 z-50 lg:z-auto
         transition-all duration-300 ease-in-out flex-shrink-0 flex flex-col
       `}>
         {/* Sidebar Header */}
