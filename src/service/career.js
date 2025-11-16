@@ -22,5 +22,19 @@ export const deleteCareerJob = async (jobId) => {
   return response.data;
 };
 
+// Applicants
+export const getCareerApplicants = async (params = {}) => {
+  // Expected params: { jobTitle, page, limit }
+  const response = await axiosService.Get("/careers/applicants", params);
+  return response.data;
+};
+
+export const updateApplicantStatus = async (applicantId, statusOrPayload) => {
+  // Accept either a string status or { status }
+  const payload =
+    typeof statusOrPayload === "string" ? { status: statusOrPayload } : statusOrPayload || {};
+  const response = await axiosService.Patch(`/careers/applicants/${applicantId}/status`, payload);
+  return response.data;
+};
 
 
