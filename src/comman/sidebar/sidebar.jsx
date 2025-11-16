@@ -8,6 +8,7 @@ import {
   LogOut,
   Briefcase,
   FilePlus2,
+  RotateCcw,
 } from "lucide-react";
 import * as localStorageService from "../../service/localStorageService";
 
@@ -41,6 +42,11 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       title: "Orders",
       icon: ShoppingCart,
       path: "/orders"
+    },
+    {
+      title: "Returns",
+      icon: RotateCcw,
+      path: "/returns"
     },
     {
       title: "Career Jobs",
