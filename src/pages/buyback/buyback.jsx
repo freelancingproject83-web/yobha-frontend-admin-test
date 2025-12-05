@@ -33,28 +33,74 @@ const Buyback = () => {
       };
       const data = await getAdminBuybacks(params);
 
-      const list = Array.isArray(data?.data)
-        ? data.data
-        : Array.isArray(data?.items)
-        ? data.items
-        : Array.isArray(data)
-        ? data
-        : [];
+      // Debug: Log the response structure
+      console.log("Buyback API Response:", data);
 
-      const totalItems =
-        typeof data?.total === "number"
-          ? data.total
-          : typeof data?.count === "number"
-          ? data.count
-          : typeof data?.totalItems === "number"
-          ? data.totalItems
-          : Array.isArray(list)
-          ? list.length
-          : 0;
+      // Try multiple possible response structures
+      let list = [];
+      let totalItems = 0;
+
+      // Check if data itself is an array
+      if (Array.isArray(data)) {
+        list = data;
+        totalItems = data.length;
+      }
+      // Check for nested data structure (e.g., { data: { items: [...], total: ... } })
+      else if (data?.data) {
+        const nestedData = data.data;
+        if (Array.isArray(nestedData)) {
+          list = nestedData;
+        } else if (Array.isArray(nestedData.items)) {
+          list = nestedData.items;
+        } else if (Array.isArray(nestedData.buybacks)) {
+          list = nestedData.buybacks;
+        } else if (Array.isArray(nestedData.results)) {
+          list = nestedData.results;
+        }
+        totalItems =
+          typeof nestedData.total === "number"
+            ? nestedData.total
+            : typeof nestedData.count === "number"
+            ? nestedData.count
+            : typeof nestedData.totalItems === "number"
+            ? nestedData.totalItems
+            : typeof nestedData.totalCount === "number"
+            ? nestedData.totalCount
+            : typeof data.total === "number"
+            ? data.total
+            : list.length;
+      }
+      // Check for direct properties
+      else if (data) {
+        if (Array.isArray(data.items)) {
+          list = data.items;
+        } else if (Array.isArray(data.buybacks)) {
+          list = data.buybacks;
+        } else if (Array.isArray(data.results)) {
+          list = data.results;
+        } else if (Array.isArray(data.data)) {
+          list = data.data;
+        }
+
+        totalItems =
+          typeof data.total === "number"
+            ? data.total
+            : typeof data.count === "number"
+            ? data.count
+            : typeof data.totalItems === "number"
+            ? data.totalItems
+            : typeof data.totalCount === "number"
+            ? data.totalCount
+            : list.length;
+      }
+
+      console.log("Extracted list:", list);
+      console.log("Extracted total:", totalItems);
 
       setItems(list);
       setTotal(totalItems);
     } catch (err) {
+      console.error("Buyback fetch error:", err);
       setItems([]);
       setTotal(0);
       setError(err?.response?.data?.message || err.message || "Failed to fetch buyback records");
