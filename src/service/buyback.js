@@ -7,5 +7,11 @@ export const getAdminBuybacks = async (params = {}) => {
   return response.data;
 };
 
+export const buybackStatus = async (params = {}) => {
+  // params: { orderId, productId, buybackId, page, size }
+  const response = await axiosService.Put("/buyback/admin/update", params);
+  return response.data;
+};
+
 
 

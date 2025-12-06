@@ -4,7 +4,7 @@ import * as axiosService from "./axiosService";
 export const GetAllProducts = async () => {
   try {
     console.log("GetAllProducts: Making API call to /Products");
-    const response = await axiosService.Get("/Products");
+    const response = await axiosService.Post("/Products/Query");
     console.log("GetAllProducts: Raw response:", response);
     console.log("GetAllProducts: Response data:", response.data);
     return response.data;

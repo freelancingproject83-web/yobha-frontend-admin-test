@@ -16,18 +16,21 @@ export default function OrdersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   const sortOptions = [
     { value: "createdAt_desc", label: "Newest First" },
     { value: "createdAt_asc", label: "Oldest First" },
-    { value: "total_desc", label: "Highest Total" }
+    // { value: "total_desc", label: "Highest Total" }
   ];
 
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
-      
+
       console.log("Fetching orders with params:", {
         page: currentPage,
         pageSize,
@@ -36,9 +39,9 @@ export default function OrdersPage() {
       });
 
       const response = await GetAllOrdersAdmin(currentPage, pageSize, debouncedSearchId, sortBy);
-      
+
       console.log("Orders response:", response);
-      
+
       if (response && response.data) {
         setOrders(response.data);
         setTotalPages(response.totalPages || 1);
@@ -54,7 +57,7 @@ export default function OrdersPage() {
       }
     } catch (err) {
       console.error("Error fetching orders:", err);
-      
+
       // Check for specific error types
       if (err.response?.status === 401) {
         setError("Authentication failed. Please login again.");
@@ -71,7 +74,7 @@ export default function OrdersPage() {
       } else {
         setError(`Failed to fetch orders: ${err.response?.data?.message || err.message}`);
       }
-      
+
       setOrders([]);
     } finally {
       setLoading(false);
@@ -83,7 +86,7 @@ export default function OrdersPage() {
     if (searchId !== debouncedSearchId) {
       setIsSearching(true);
     }
-    
+
     const timer = setTimeout(() => {
       setDebouncedSearchId(searchId);
       setIsSearching(false);
@@ -135,19 +138,19 @@ export default function OrdersPage() {
 
   const formatCurrency = (amount, currency = "USD") => {
     if (amount === null || amount === undefined) return "N/A";
-    
+
     // Handle different currency formats
     const currencyMap = {
       "USD": "en-US",
-      "EUR": "de-DE", 
+      "EUR": "de-DE",
       "GBP": "en-GB",
       "INR": "en-IN",
       "AED": "ar-AE",
       "SAR": "ar-SA"
     };
-    
+
     const locale = currencyMap[currency] || "en-US";
-    
+
     try {
       return new Intl.NumberFormat(locale, {
         style: "currency",
@@ -322,7 +325,7 @@ export default function OrdersPage() {
                       Order ID
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-light text-gray-700">
-                      Customer
+                      Payment Method
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-light text-gray-700">
                       Status
@@ -340,12 +343,12 @@ export default function OrdersPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {orders.map((order) => (
-                    <tr key={order._id || order.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={order.orderNumber || order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 text-sm font-light text-black">
-                        {order._id || order.id || "N/A"}
+                        {order.orderNumber || order.id || "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 font-light">
-                        {order.customerName || order.customer?.name || "N/A"}
+                        {order.paymentMethod  || "N/A"}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-3 py-1 text-xs font-light ${getOrderStatusColor(order.status)}`}>
@@ -361,9 +364,10 @@ export default function OrdersPage() {
                       <td className="px-6 py-4">
                         <button
                           onClick={() => {
-                            // TODO: Implement order details view
-                            console.log("View order:", order._id || order.id);
+                            setSelectedOrder(order);
+                            setIsModalOpen(true);
                           }}
+
                           className="text-black hover:text-gray-600 text-sm font-light transition-colors"
                         >
                           View Details
@@ -378,21 +382,21 @@ export default function OrdersPage() {
             {/* Mobile Cards */}
             <div className="md:hidden">
               {orders.map((order) => (
-                <div key={order._id || order.id} className="p-4 border-b border-gray-200">
+                <div key={order.orderNumber || order.id} className="p-4 border-b border-gray-200">
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <h4 className="font-light text-black text-sm">
-                        Order #{order._id || order.id}
+                        Order #{order.orderNumber || order.id}
                       </h4>
                       <p className="text-gray-600 text-xs font-light">
-                        {order.customerName || order.customer?.name || "N/A"}
+                        {order.paymentMethod || "N/A"}
                       </p>
                     </div>
                     <span className={`inline-flex px-3 py-1 text-xs font-light ${getOrderStatusColor(order.status)}`}>
                       {order.status || "Unknown"}
                     </span>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-gray-500 text-xs font-light">Total</p>
@@ -403,13 +407,14 @@ export default function OrdersPage() {
                       <p className="text-gray-600 font-light">{formatDate(order.createdAt)}</p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <button
                       onClick={() => {
-                        // TODO: Implement order details view
-                        console.log("View order:", order._id || order.id);
+                        setSelectedOrder(order);
+                        setIsModalOpen(true);
                       }}
+
                       className="text-black hover:text-gray-600 text-sm font-light transition-colors"
                     >
                       View Details
@@ -448,6 +453,152 @@ export default function OrdersPage() {
           </div>
         )}
       </div>
+      {/* Order Details Modal */}
+{isModalOpen && selectedOrder && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white w-full max-w-3xl p-6 rounded shadow-lg overflow-y-auto max-h-[90vh]">
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-light text-black">
+          Order Details — #{selectedOrder.orderNumber}
+        </h2>
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="text-gray-500 hover:text-black text-xl"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Customer Section */}
+      <div className="mb-6">
+        <h3 className="text-lg font-light mb-2">Customer Information</h3>
+        <div className="border p-4 bg-gray-50">
+
+          <p><strong>Name:</strong> {selectedOrder.shippingAddress?.fullName || "N/A"}</p>
+          <p><strong>Phone:</strong> {selectedOrder.shippingAddress?.mobileNumner || "N/A"}</p>
+
+          <p>
+            <strong>Address:</strong>{" "}
+            {selectedOrder.shippingAddress?.line1 || "N/A"},{" "}
+            {selectedOrder.shippingAddress?.city || "N/A"},{" "}
+            {selectedOrder.shippingAddress?.state || "N/A"},{" "}
+            {selectedOrder.shippingAddress?.zip || "N/A"}
+          </p>
+
+        </div>
+      </div>
+
+      {/* Items Section */}
+      <div className="mb-6">
+        <h3 className="text-lg font-light mb-2">Items</h3>
+        
+        {selectedOrder.items?.map((item, index) => (
+          <div key={index} className="border p-4 mb-4 bg-gray-50 flex gap-4">
+
+            <img
+              src={item.thumbnailUrl}
+              alt="product"
+              className="w-20 h-20 object-cover rounded border"
+            />
+
+            <div>
+              <p className="text-black font-light text-sm">{item.productName}</p>
+              <p className="text-gray-600 text-sm">Size: {item.size}</p>
+              <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>
+              <p className="text-gray-600 text-sm">Color: {item.color?.join(", ")}</p>
+              <p className="text-gray-600 text-sm">Fabric: {item.fabric?.join(", ")}</p>
+
+              <p className="text-black font-light mt-1">
+                {formatCurrency(item.unitPrice, selectedOrder.currency)}
+              </p>
+            </div>
+
+          </div>
+        ))}
+      </div>
+
+      {/* Pricing Section */}
+      <div className="mb-6">
+        <h3 className="text-lg font-light mb-2">Pricing Summary</h3>
+
+        <div className="border p-4 bg-gray-50 text-sm space-y-1">
+
+          <p><strong>Subtotal:</strong> {formatCurrency(selectedOrder.subTotal, selectedOrder.currency)}</p>
+          <p><strong>Discount:</strong> {formatCurrency(selectedOrder.discount, selectedOrder.currency)}</p>
+          <p><strong>Loyalty Discount:</strong> {formatCurrency(selectedOrder.loyaltyDiscountAmount, selectedOrder.currency)}</p>
+          <p><strong>Shipping:</strong> {formatCurrency(selectedOrder.shipping, selectedOrder.currency)}</p>
+          <p><strong>Tax:</strong> {formatCurrency(selectedOrder.tax, selectedOrder.currency)}</p>
+
+          <hr />
+
+          <p className="text-lg">
+            <strong>Total:</strong> {formatCurrency(selectedOrder.total, selectedOrder.currency)}
+          </p>
+
+        </div>
+      </div>
+
+      {/* Payment Section */}
+      <div className="mb-6">
+        <h3 className="text-lg font-light mb-2">Payment Info</h3>
+        
+        <div className="border p-4 bg-gray-50 text-sm space-y-1">
+
+          <p><strong>Method:</strong> {selectedOrder.paymentMethod}</p>
+          <p><strong>Status:</strong> {selectedOrder.paymentStatus}</p>
+
+          {/* Show only for Razorpay orders */}
+          {selectedOrder.paymentMethod === "razorpay" && (
+            <>
+              <p><strong>Razorpay Order ID:</strong> {selectedOrder.razorpayOrderId || "N/A"}</p>
+              <p><strong>Razorpay Payment ID:</strong> {selectedOrder.razorpayPaymentId || "N/A"}</p>
+
+              <p>
+                <strong>Gateway Response:</strong>
+                <pre className="bg-white border p-2 text-xs mt-1 overflow-auto max-h-40">
+                  {selectedOrder.paymentGatewayResponse || "N/A"}
+                </pre>
+              </p>
+            </>
+          )}
+
+        </div>
+      </div>
+
+      {/* Shipping Section */}
+      <div className="mb-6">
+        <h3 className="text-lg font-light mb-2">Shipping Info</h3>
+
+        <div className="border p-4 bg-gray-50 text-sm space-y-1">
+
+          <p><strong>Status:</strong> {selectedOrder.status}</p>
+          <p><strong>Tracking ID:</strong> {selectedOrder.shippingTrackingId || "N/A"}</p>
+          <p><strong>Partner:</strong> {selectedOrder.shippingPartner || "N/A"}</p>
+
+          {selectedOrder.shippedAt && (
+            <p><strong>Shipped At:</strong> {new Date(selectedOrder.shippedAt).toLocaleString()}</p>
+          )}
+
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-right">
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition"
+        >
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }

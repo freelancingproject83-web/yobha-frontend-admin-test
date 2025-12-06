@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { RefreshCw, Search, Package, CreditCard, ChevronLeft, ChevronRight } from "lucide-react";
 import { getAdminBuybacks } from "../../service/buyback";
+import BuybackDetailsModal from "./BuybackDetailsModal";
 
 const Buyback = () => {
   const [orderId, setOrderId] = useState("");
@@ -9,6 +10,7 @@ const Buyback = () => {
   const [page, setPage] = useState(1); // UI default
   const [size, setSize] = useState(20); // UI default
   const [paginationTouched, setPaginationTouched] = useState(false);
+  const [selected, setSelected] = useState(null);
 
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
@@ -61,14 +63,14 @@ const Buyback = () => {
           typeof nestedData.total === "number"
             ? nestedData.total
             : typeof nestedData.count === "number"
-            ? nestedData.count
-            : typeof nestedData.totalItems === "number"
-            ? nestedData.totalItems
-            : typeof nestedData.totalCount === "number"
-            ? nestedData.totalCount
-            : typeof data.total === "number"
-            ? data.total
-            : list.length;
+              ? nestedData.count
+              : typeof nestedData.totalItems === "number"
+                ? nestedData.totalItems
+                : typeof nestedData.totalCount === "number"
+                  ? nestedData.totalCount
+                  : typeof data.total === "number"
+                    ? data.total
+                    : list.length;
       }
       // Check for direct properties
       else if (data) {
@@ -86,12 +88,12 @@ const Buyback = () => {
           typeof data.total === "number"
             ? data.total
             : typeof data.count === "number"
-            ? data.count
-            : typeof data.totalItems === "number"
-            ? data.totalItems
-            : typeof data.totalCount === "number"
-            ? data.totalCount
-            : list.length;
+              ? data.count
+              : typeof data.totalItems === "number"
+                ? data.totalItems
+                : typeof data.totalCount === "number"
+                  ? data.totalCount
+                  : list.length;
       }
 
       console.log("Extracted list:", list);
@@ -227,7 +229,7 @@ const Buyback = () => {
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-[#8a7643]">Customer</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-[#8a7643]">Status</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-[#8a7643]">Requested At</th>
-                    <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-[#8a7643]">Amount</th>
+                    <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-[#8a7643]">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
@@ -256,7 +258,7 @@ const Buyback = () => {
                           </span>
                         </td>
                         <td className="px-6 py-5 text-sm text-[#473d21]">{createdAt}</td>
-                        <td className="px-6 py-5 text-right text-sm text-[#473d21]">₹{amount}</td>
+                        <td className="px-6 py-5 text-right text-sm text-[#473d21]" onClick={() => setSelected(it)}>View Details</td>
                       </tr>
                     );
                   })}
@@ -300,7 +302,7 @@ const Buyback = () => {
                         <span className="text-gray-500">Customer:</span> {customer}
                       </p>
                       <p>
-                        <span className="text-gray-500">Amount:</span> ₹{amount}
+                        <span className="text-gray-500" onClick={() => setSelected(it)}> View Details</span>
                       </p>
                     </div>
                   </div>
@@ -338,6 +340,13 @@ const Buyback = () => {
           </button>
         </div>
       </div>
+      {selected && (
+        <BuybackDetailsModal
+          data={selected}
+          onClose={() => setSelected(null)}
+        />
+      )}
+
     </div>
   );
 };
