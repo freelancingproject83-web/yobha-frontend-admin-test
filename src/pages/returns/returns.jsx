@@ -27,6 +27,7 @@ const Returns = () => {
   const [orderDetailsItems, setOrderDetailsItems] = useState([]);
   const [orderDetailsLoading, setOrderDetailsLoading] = useState(false);
   const [orderDetailsError, setOrderDetailsError] = useState("");
+  const [showCreateShipment, setShowCreateShipment] = useState(false);
 
   const [returnDetailsOpen, setReturnDetailsOpen] = useState(false);
   const [returnDetailsId, setReturnDetailsId] = useState("");
@@ -63,21 +64,21 @@ const Returns = () => {
       const list = Array.isArray(data?.items)
         ? data.items
         : Array.isArray(data?.data)
-        ? data.data
-        : Array.isArray(data)
-        ? data
-        : [];
+          ? data.data
+          : Array.isArray(data)
+            ? data
+            : [];
 
       const totalItems =
         typeof data?.total === "number"
           ? data.total
           : typeof data?.count === "number"
-          ? data.count
-          : typeof data?.totalItems === "number"
-          ? data.totalItems
-          : Array.isArray(list)
-          ? list.length
-          : 0;
+            ? data.count
+            : typeof data?.totalItems === "number"
+              ? data.totalItems
+              : Array.isArray(list)
+                ? list.length
+                : 0;
 
       setItems(list);
       setTotal(totalItems);
@@ -86,9 +87,9 @@ const Returns = () => {
       setTotal(0);
       setError(
         err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          err.message ||
-          "Failed to fetch return orders"
+        err?.response?.data?.error ||
+        err.message ||
+        "Failed to fetch return orders"
       );
     } finally {
       setLoading(false);
@@ -135,9 +136,9 @@ const Returns = () => {
     } catch (err) {
       setOrderDetailsError(
         err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          err.message ||
-          "Failed to load returns for this order"
+        err?.response?.data?.error ||
+        err.message ||
+        "Failed to load returns for this order"
       );
     } finally {
       setOrderDetailsLoading(false);
@@ -166,8 +167,8 @@ const Returns = () => {
         err?.response?.status === 404
           ? "Return not found."
           : err?.response?.status === 403
-          ? "You are not allowed to view this return."
-          : err?.response?.data?.message ||
+            ? "You are not allowed to view this return."
+            : err?.response?.data?.message ||
             err?.response?.data?.error ||
             err.message ||
             "Failed to load return details"
@@ -216,9 +217,9 @@ const Returns = () => {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          err.message ||
-          "Failed to update return"
+        err?.response?.data?.error ||
+        err.message ||
+        "Failed to update return"
       );
     } finally {
       setLoading(false);
@@ -241,9 +242,9 @@ const Returns = () => {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          err.message ||
-          "Failed to reject return"
+        err?.response?.data?.error ||
+        err.message ||
+        "Failed to reject return"
       );
     } finally {
       setLoading(false);
@@ -273,9 +274,9 @@ const Returns = () => {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          err.message ||
-          "Failed to approve return"
+        err?.response?.data?.error ||
+        err.message ||
+        "Failed to approve return"
       );
     } finally {
       setLoading(false);
@@ -427,6 +428,9 @@ const Returns = () => {
                     <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-[#8a7643]">
                       Actions
                     </th>
+                    <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-[#8a7643]">
+                      Reverse Pickup
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
@@ -499,6 +503,15 @@ const Returns = () => {
                             className="inline-flex items-center rounded-full border border-gray-300 px-4 py-1.5 text-xs text-black hover:bg-gray-50"
                           >
                             Update
+                          </button>
+                        </td>
+                        <td className="px-6 py-5 text-sm text-right">
+
+                          <button
+                            onClick={() => setShowCreateShipment(true)}
+                            className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition"
+                          >
+                            Create Shipment
                           </button>
                         </td>
                       </tr>

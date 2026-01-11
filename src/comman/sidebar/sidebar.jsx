@@ -33,6 +33,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       icon: Plus,
       path: "/add-product"
     },
+     {
+      title: "Bulk Upload Products",
+      icon: ShoppingCart,
+      path: "/bulk-upload",
+ 
+    },
     {
       title: "Image Upload",
       icon: Upload,
@@ -65,6 +71,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       path: "/buyback",
  
     },
+   
     {
       title: "Logout",
       icon: LogOut,

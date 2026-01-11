@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ArrowUpDown, RefreshCw, Eye } from "lucide-react";
 import { GetAllOrdersAdmin } from "../../service/orders";
+import CreateShipmentAction from "../deliveryModal/deliveryModal";
 
 export default function OrdersPage() {
   const navigate = useNavigate();
@@ -17,7 +18,9 @@ export default function OrdersPage() {
   const [totalOrders, setTotalOrders] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  console.log(selectedOrder)
   const [isModalOpen, setIsModalOpen] = useState(false);
+const [showCreateShipment, setShowCreateShipment] = useState(false);
 
 
   const sortOptions = [
@@ -582,6 +585,37 @@ export default function OrdersPage() {
           )}
 
         </div>
+          {/* Create Shipment Button */}
+<div className="mb-6 mt-6">
+  <button
+    onClick={() => setShowCreateShipment(true)}
+    className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition"
+  >
+    Create Shipment
+  </button>
+</div>
+{/* Create Shipment */}
+{showCreateShipment && (
+  <div className="mb-6 border-t pt-4">
+    <CreateShipmentAction
+    referenceType="Order"
+      shipmentType={
+        selectedOrder.shippingAddress?.country &&
+        selectedOrder.shippingAddress.country !== "India"
+          ? "International"
+          : "Domestic"
+      }
+      order={selectedOrder}
+      onSuccess={() => {
+        setShowCreateShipment(false);
+        setIsModalOpen(false);
+        fetchOrders();
+      }}
+    />
+  </div>
+)}
+
+
       </div>
 
       {/* Footer */}

@@ -24,6 +24,7 @@ const Buyback = lazy(() => import("./pages/buyback/buyback"));
 const CreateCareerJob = lazy(() => import("./pages/careers/create-job"));
 const CareerJobs = lazy(() => import("./pages/careers/jobs"));
 const Returns = lazy(() => import("./pages/returns/returns"));
+const BulkUpload = lazy(() => import("./pages/product/bulkUpload"))
 
 const Router = () => {
   return (
@@ -32,7 +33,7 @@ const Router = () => {
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-   
+
         {/* Root redirect based on token */}
         <Route
           path="/"
@@ -127,15 +128,25 @@ const Router = () => {
           }
         />
         <Route
-  path="/buyback"
-  element={
-    <PrivateRoute>
-      <AppLayout>
-        <Buyback />
-      </AppLayout>
-    </PrivateRoute>
-  }
-/>
+          path="/buyback"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <Buyback />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/bulk-upload"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <BulkUpload />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
 
         <Route
           path="/test-layout"

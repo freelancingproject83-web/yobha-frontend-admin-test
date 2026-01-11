@@ -8,6 +8,8 @@ const BuybackDetailsModal = ({ data, onClose }) => {
   const [amount, setAmount] = useState("");
   const [loyaltyPoints, setLoyaltyPoints] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showCreateShipment, setShowCreateShipment] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   if (!data) return null;
 
@@ -74,15 +76,16 @@ const BuybackDetailsModal = ({ data, onClose }) => {
             <div>
               <h3 className="text-lg font-semibold mb-2">Product Images</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {data.productUrl.map((url, idx) => (
-                  <img
-                    key={idx}
-                    src={url}
-                    className="rounded-xl border shadow-sm object-cover"
-                    alt="Product"
-                  />
-                ))}
-              </div>
+        {data.productUrl.map((url, idx) => (
+          <img
+            key={url}
+            src={url}
+            className="rounded-xl border shadow-sm object-cover w-full h-48 cursor-pointer"
+            alt={`Product image ${idx + 1}`}
+            onClick={() => setSelectedImage(url)} // Open image on click
+          />
+        ))}
+      </div>
             </div>
           )}
 
@@ -112,7 +115,7 @@ const BuybackDetailsModal = ({ data, onClose }) => {
           )}
 
           {/* NOTES */}
-          <div className="space-y-1">
+         {!data.loyaltyPoints || !data.amount && <div className="space-y-1">
             <label className="text-sm font-semibold">Notes</label>
             <textarea
               className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-yellow-400 focus:border-yellow-400"
@@ -121,11 +124,11 @@ const BuybackDetailsModal = ({ data, onClose }) => {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
-          </div>
+          </div>}
 
           {/* CONDITIONAL FIELDS */}
           {isTradeInOrRecycle && (
-            <div>
+            !data.loyaltyPoints ? <div>
               <label className="text-sm font-semibold">Loyalty Points *</label>
               <input
                 type="number"
@@ -134,11 +137,20 @@ const BuybackDetailsModal = ({ data, onClose }) => {
                 className="w-full p-3 border rounded-xl bg-gray-50"
                 placeholder="Enter loyalty points"
               />
+            </div> : <div>
+              <label className="text-sm font-semibold">Loyalty Points</label>
+              <input
+                type="number"
+                value={data.loyaltyPoints}
+                disabled
+                className="w-full p-3 border rounded-xl bg-gray-100"
+                placeholder="Loyalty points already assigned"
+              />
             </div>
           )}
 
           {isRepairReuse && (
-            <div>
+           !data.amount ? <div>
               <label className="text-sm font-semibold">Amount (INR) *</label>
               <input
                 type="number"
@@ -147,10 +159,46 @@ const BuybackDetailsModal = ({ data, onClose }) => {
                 className="w-full p-3 border rounded-xl bg-gray-50"
                 placeholder="Enter repair amount"
               />
+            </div>:<div>
+              <label className="text-sm font-semibold">Amount (INR)</label>
+              <input
+                type="number"
+                value={data.amount}
+                disabled
+                className="w-full p-3 border rounded-xl bg-gray-100"
+                placeholder="Amount already assigned"
+              />
             </div>
           )}
         </div>
-
+        {data.loyaltyPoints  && <div className="mb-6 mt-6 mx-6">
+          <button
+            onClick={() => setShowCreateShipment(true)}
+            className="px-6 py-2  bg-black text-white hover:bg-gray-800 transition"
+          >
+            Create Shipment
+          </button>
+        </div>}
+{/* 
+        {showCreateShipment && (
+          <div className="mb-6 border-t pt-4">
+            <CreateShipmentAction
+            referenceType="Buyback"
+              shipmentType={
+                data.shippingAddress?.country &&
+                data.shippingAddress.country !== "India"
+                  ? "International"
+                  : "Domestic"
+              }
+              order={data}
+              onSuccess={() => {
+                setShowCreateShipment(false);
+                setIsModalOpen(false);
+                fetchOrders();
+              }}
+            />
+          </div>
+        )} */}
         {/* FOOTER BUTTONS */}
         <div className="p-6 border-t bg-gray-50 flex justify-end gap-3">
           <button
@@ -160,15 +208,27 @@ const BuybackDetailsModal = ({ data, onClose }) => {
             Cancel
           </button>
 
-          <button
+         {!data.loyaltyPoints || !data.amount  && <button
             onClick={handleSubmit}
             disabled={loading}
             className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl shadow-md disabled:opacity-50"
           >
             {loading ? "Updating..." : "Update Status"}
-          </button>
+          </button>}
         </div>
       </div>
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+          onClick={() => setSelectedImage(null)} // Close on click outside
+        >
+          <img
+            src={selectedImage}
+            alt="Selected Product"
+            className="max-w-full max-h-full rounded-lg shadow-lg"
+          />
+        </div>
+      )}
     </div>
   );
 };

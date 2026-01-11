@@ -49,5 +49,13 @@ export const Delete = async (url, config = {}) => {
   const response = await apiClient.delete(url, config);
   return response;
 };
+export const PostMultipart = async (url, file, config = {}) => {
+  const formData = new FormData();
+  formData.append("file", file);
 
+  return apiClient.post(url, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    ...config,
+  });
+};
 export default apiClient;
