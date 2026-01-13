@@ -115,7 +115,7 @@ const BuybackDetailsModal = ({ data, onClose }) => {
           )}
 
           {/* NOTES */}
-         {!data.loyaltyPoints || !data.amount && <div className="space-y-1">
+       <div className="space-y-1">
             <label className="text-sm font-semibold">Notes</label>
             <textarea
               className="w-full p-3 border rounded-xl bg-gray-50 focus:ring-yellow-400 focus:border-yellow-400"
@@ -124,7 +124,7 @@ const BuybackDetailsModal = ({ data, onClose }) => {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
-          </div>}
+          </div>
 
           {/* CONDITIONAL FIELDS */}
           {isTradeInOrRecycle && (
@@ -208,13 +208,13 @@ const BuybackDetailsModal = ({ data, onClose }) => {
             Cancel
           </button>
 
-         {!data.loyaltyPoints || !data.amount  && <button
+<button
             onClick={handleSubmit}
             disabled={loading}
             className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl shadow-md disabled:opacity-50"
           >
             {loading ? "Updating..." : "Update Status"}
-          </button>}
+          </button>
         </div>
       </div>
       {selectedImage && (
