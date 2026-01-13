@@ -5,6 +5,8 @@ import { CreateShipment } from "../../service/delivery";
 const PICKUP_DETAILS = {
     pickupName: "Warehouse",
     pickupPhone: "9504051829",
+    pickupCity: "Mohali",
+    PickupState: "Punjab",
     pickupAddress:
         "B 1503, Tower B, JLPL Galaxy Heights, Sector 66 A, Mohali, SAS Nagar",
     pickupPincode: "140308",
@@ -18,6 +20,7 @@ export default function CreateShipmentAction({
 }) {
     const [weight, setWeight] = useState("");
     const [loading, setLoading] = useState(false);
+ 
 
     const [isInternational, setIsInternational] = useState(shipmentType === "International" ? true : false);
 
@@ -28,7 +31,6 @@ export default function CreateShipmentAction({
             return;
         }
 
-        // 🔹 Base payload
         const payload = {
             orderId: order.id,
             referenceType: referenceType,
@@ -40,13 +42,14 @@ export default function CreateShipmentAction({
             CountryCode: "IN",
         };
 
-        // 🟢 Domestic payload
         if (!isInternational) {
             Object.assign(payload, {
                 ...PICKUP_DETAILS,
                 dropName: order.shippingAddress?.fullName,
                 dropPhone: order.shippingAddress?.mobileNumner,
                 dropAddress: `${order.shippingAddress?.line1}, ${order.shippingAddress?.city}`,
+                dropCity: order.shippingAddress?.city,
+                DropState: order.shippingAddress?.state,
                 dropPincode: order.shippingAddress?.zip,
                 ...(order.paymentMethod === "COD" && {
                     codAmount: order.total,
@@ -55,13 +58,13 @@ export default function CreateShipmentAction({
             });
         }
 
-        // 🔵 International payload
         if (isInternational) {
             Object.assign(payload, {
                 dropName: order.shippingAddress?.fullName,
                 dropAddress: `${order.shippingAddress?.line1}, ${order.shippingAddress?.city}`,
                 countryCode: order.shippingAddress?.countryCode,
-
+                dropCity: order.shippingAddress?.city || "N/A",
+                DropState: order.shippingAddress?.state || "N/A",
                 declaredValue: order.total,
 
             });

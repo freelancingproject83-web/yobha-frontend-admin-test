@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, ArrowUpDown, RefreshCw, Eye } from "lucide-react";
 import { GetAllOrdersAdmin } from "../../service/orders";
 import CreateShipmentAction from "../deliveryModal/deliveryModal";
+import { updateOrder } from "../../service/order";
 
 export default function OrdersPage() {
   const navigate = useNavigate();
@@ -20,8 +21,12 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   console.log(selectedOrder)
   const [isModalOpen, setIsModalOpen] = useState(false);
-const [showCreateShipment, setShowCreateShipment] = useState(false);
-
+  const [showCreateShipment, setShowCreateShipment] = useState(false);
+  const [orderStatus, setOrderStatus] = useState(orders?.status || "");
+  const [paymentStatus, setPaymentStatus] = useState(orders?.paymentStatus || "");
+  const [statusLoading, setStatusLoading] = useState(false);
+  const orderStatusOptions = ["Pending", "Shipped", "Delivered", "Returned"];
+  const paymentStatusOptions = ["Pending", "Paid", "Refunded"];
 
   const sortOptions = [
     { value: "createdAt_desc", label: "Newest First" },
@@ -181,6 +186,44 @@ const [showCreateShipment, setShowCreateShipment] = useState(false);
         return "bg-gray-100 text-gray-800";
     }
   };
+const updateOrderStatus = async (orderId, status) => {
+  console.log(orderId ,status , "orderSt")
+  const payload ={
+    id:orders[0].id,
+    paymentStatus: "",
+    orderStatus:status,
+    type:'Order'
+  }
+  try {
+    setStatusLoading(true);
+    await updateOrder( payload); // Call your axiosService function here
+    alert("Order status updated successfully");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to update order status");
+  } finally {
+    setStatusLoading(false);
+  }
+};
+
+const updatePaymentStatus = async (orderId, status) => {
+  const payload ={
+    id:orders[0].id,
+    paymentStatus: status,
+    orderStatus:"",
+    type:'Order'
+  }
+  try {
+    setStatusLoading(true);
+    await updateOrder( payload); // Same function can handle both
+    alert("Payment status updated successfully");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to update payment status");
+  } finally {
+    setStatusLoading(false);
+  }
+};
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -351,7 +394,7 @@ const [showCreateShipment, setShowCreateShipment] = useState(false);
                         {order.orderNumber || order.id || "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 font-light">
-                        {order.paymentMethod  || "N/A"}
+                        {order.paymentMethod || "N/A"}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-3 py-1 text-xs font-light ${getOrderStatusColor(order.status)}`}>
@@ -457,180 +500,224 @@ const [showCreateShipment, setShowCreateShipment] = useState(false);
         )}
       </div>
       {/* Order Details Modal */}
-{isModalOpen && selectedOrder && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white w-full max-w-3xl p-6 rounded shadow-lg overflow-y-auto max-h-[90vh]">
+      {isModalOpen && selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-3xl p-6 rounded shadow-lg overflow-y-auto max-h-[90vh]">
 
-      {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-light text-black">
-          Order Details — #{selectedOrder.orderNumber}
-        </h2>
-        <button
-          onClick={() => setIsModalOpen(false)}
-          className="text-gray-500 hover:text-black text-xl"
-        >
-          ✕
-        </button>
-      </div>
+            {/* Header */}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-light text-black">
+                Order Details — #{selectedOrder.orderNumber}
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-500 hover:text-black text-xl"
+              >
+                ✕
+              </button>
+            </div>
 
-      {/* Customer Section */}
-      <div className="mb-6">
-        <h3 className="text-lg font-light mb-2">Customer Information</h3>
-        <div className="border p-4 bg-gray-50">
+            {/* Customer Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-light mb-2">Customer Information</h3>
+              <div className="border p-4 bg-gray-50">
 
-          <p><strong>Name:</strong> {selectedOrder.shippingAddress?.fullName || "N/A"}</p>
-          <p><strong>Phone:</strong> {selectedOrder.shippingAddress?.mobileNumner || "N/A"}</p>
+                <p><strong>Name:</strong> {selectedOrder.shippingAddress?.fullName || "N/A"}</p>
+                <p><strong>Phone:</strong> {selectedOrder.shippingAddress?.mobileNumner || "N/A"}</p>
 
-          <p>
-            <strong>Address:</strong>{" "}
-            {selectedOrder.shippingAddress?.line1 || "N/A"},{" "}
-            {selectedOrder.shippingAddress?.city || "N/A"},{" "}
-            {selectedOrder.shippingAddress?.state || "N/A"},{" "}
-            {selectedOrder.shippingAddress?.zip || "N/A"}
-          </p>
+                <p>
+                  <strong>Address:</strong>{" "}
+                  {selectedOrder.shippingAddress?.line1 || "N/A"},{" "}
+                  {selectedOrder.shippingAddress?.city || "N/A"},{" "}
+                  {selectedOrder.shippingAddress?.state || "N/A"},{" "}
+                  {selectedOrder.shippingAddress?.zip || "N/A"}
+                </p>
 
-        </div>
-      </div>
+              </div>
+            </div>
 
-      {/* Items Section */}
-      <div className="mb-6">
-        <h3 className="text-lg font-light mb-2">Items</h3>
-        
-        {selectedOrder.items?.map((item, index) => (
-          <div key={index} className="border p-4 mb-4 bg-gray-50 flex gap-4">
+            {/* Items Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-light mb-2">Items</h3>
 
-            <img
-              src={item.thumbnailUrl}
-              alt="product"
-              className="w-20 h-20 object-cover rounded border"
-            />
+              {selectedOrder.items?.map((item, index) => (
+                <div key={index} className="border p-4 mb-4 bg-gray-50 flex gap-4">
 
-            <div>
-              <p className="text-black font-light text-sm">{item.productName}</p>
-              <p className="text-gray-600 text-sm">Size: {item.size}</p>
-              <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>
-              <p className="text-gray-600 text-sm">Color: {item.color?.join(", ")}</p>
-              <p className="text-gray-600 text-sm">Fabric: {item.fabric?.join(", ")}</p>
+                  <img
+                    src={item.thumbnailUrl}
+                    alt="product"
+                    className="w-20 h-20 object-cover rounded border"
+                  />
 
-              <p className="text-black font-light mt-1">
-                {formatCurrency(item.unitPrice, selectedOrder.currency)}
-              </p>
+                  <div>
+                    <p className="text-black font-light text-sm">{item.productName}</p>
+                    <p className="text-gray-600 text-sm">Size: {item.size}</p>
+                    <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>
+                    <p className="text-gray-600 text-sm">Color: {item.color?.join(", ")}</p>
+                    <p className="text-gray-600 text-sm">Fabric: {item.fabric?.join(", ")}</p>
+
+                    <p className="text-black font-light mt-1">
+                      {formatCurrency(item.unitPrice, selectedOrder.currency)}
+                    </p>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+
+            {/* Pricing Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-light mb-2">Pricing Summary</h3>
+
+              <div className="border p-4 bg-gray-50 text-sm space-y-1">
+
+                <p><strong>Subtotal:</strong> {formatCurrency(selectedOrder.subTotal, selectedOrder.currency)}</p>
+                <p><strong>Discount:</strong> {formatCurrency(selectedOrder.discount, selectedOrder.currency)}</p>
+                <p><strong>Loyalty Discount:</strong> {formatCurrency(selectedOrder.loyaltyDiscountAmount, selectedOrder.currency)}</p>
+                <p><strong>Shipping:</strong> {formatCurrency(selectedOrder.shipping, selectedOrder.currency)}</p>
+                <p><strong>Tax:</strong> {formatCurrency(selectedOrder.tax, selectedOrder.currency)}</p>
+
+                <hr />
+
+                <p className="text-lg">
+                  <strong>Total:</strong> {formatCurrency(selectedOrder.total, selectedOrder.currency)}
+                </p>
+
+              </div>
+            </div>
+
+            {/* Payment Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-light mb-2">Payment Info</h3>
+
+              <div className="border p-4 bg-gray-50 text-sm space-y-1">
+
+                <p><strong>Method:</strong> {selectedOrder.paymentMethod}</p>
+                <p><strong>Status:</strong> {selectedOrder.paymentStatus}</p>
+
+                {/* Show only for Razorpay orders */}
+                {selectedOrder.paymentMethod === "razorpay" && (
+                  <>
+                    <p><strong>Razorpay Order ID:</strong> {selectedOrder.razorpayOrderId || "N/A"}</p>
+                    <p><strong>Razorpay Payment ID:</strong> {selectedOrder.razorpayPaymentId || "N/A"}</p>
+
+                    <p>
+                      <strong>Gateway Response:</strong>
+                      <pre className="bg-white border p-2 text-xs mt-1 overflow-auto max-h-40">
+                        {selectedOrder.paymentGatewayResponse || "N/A"}
+                      </pre>
+                    </p>
+                  </>
+                )}
+
+              </div>
+            </div>
+
+            {/* Shipping Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-light mb-2">Shipping Info</h3>
+
+              <div className="border p-4 bg-gray-50 text-sm space-y-1">
+
+                <p><strong>Status:</strong> {selectedOrder.status}</p>
+                <p><strong>Tracking ID:</strong> {selectedOrder.shippingTrackingId || "N/A"}</p>
+                <p><strong>Partner:</strong> {selectedOrder.shippingPartner || "N/A"}</p>
+
+                {selectedOrder.shippedAt && (
+                  <p><strong>Shipped At:</strong> {new Date(selectedOrder.shippedAt).toLocaleString()}</p>
+                )}
+
+              </div>
+              {/* Create Shipment Button */}
+              <div className="mt-4">
+                <label className="block text-sm font-light mb-1">Order Status</label>
+                <select
+                  value={orderStatus}
+                  onChange={(e) => setOrderStatus(e.target.value)}
+                  className="w-full border px-3 py-2 text-sm focus:outline-none mb-2"
+                >
+                  <option value="">Select Order Status</option>
+                  {orderStatusOptions.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+
+                <button
+                  onClick={() => updateOrderStatus(orders.id,orderStatus )}
+                  disabled={statusLoading || !orderStatus}
+                  className="w-full bg-blue-600 text-white py-2 hover:bg-blue-700 transition disabled:opacity-50 flex justify-center items-center"
+                >
+                  {statusLoading ? "Updating..." : "Update Order Status"}
+                </button>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-light mb-1">Payment Status</label>
+                <select
+                  value={paymentStatus}
+                  onChange={(e) => setPaymentStatus(e.target.value)}
+                  className="w-full border px-3 py-2 text-sm focus:outline-none mb-2"
+                >
+                  <option value="">Select Payment Status</option>
+                  {paymentStatusOptions.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+
+                <button
+                  onClick={() => updatePaymentStatus(orders.id, paymentStatus )}
+                  disabled={statusLoading || !paymentStatus}
+                  className="w-full bg-green-600 text-white py-2 hover:bg-green-700 transition disabled:opacity-50 flex justify-center items-center"
+                >
+                  {statusLoading ? "Updating..." : "Update Payment Status"}
+                </button>
+              </div>
+
+              <div className="mb-6 mt-6">
+                <button
+                  onClick={() => setShowCreateShipment(true)}
+                  className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition"
+                >
+                  Create Shipment
+                </button>
+              </div>
+              {/* Create Shipment */}
+              {showCreateShipment && (
+                <div className="mb-6 border-t pt-4">
+                  <CreateShipmentAction
+                    referenceType="Order"
+                    shipmentType={
+                      selectedOrder.shippingAddress?.country &&
+                        selectedOrder.shippingAddress.country !== "India"
+                        ? "International"
+                        : "Domestic"
+                    }
+                    order={selectedOrder}
+                    onSuccess={() => {
+                      setShowCreateShipment(false);
+                      setIsModalOpen(false);
+                      fetchOrders();
+                    }}
+                  />
+                </div>
+              )}
+
+
+            </div>
+
+            {/* Footer */}
+            <div className="text-right">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition"
+              >
+                Close
+              </button>
             </div>
 
           </div>
-        ))}
-      </div>
-
-      {/* Pricing Section */}
-      <div className="mb-6">
-        <h3 className="text-lg font-light mb-2">Pricing Summary</h3>
-
-        <div className="border p-4 bg-gray-50 text-sm space-y-1">
-
-          <p><strong>Subtotal:</strong> {formatCurrency(selectedOrder.subTotal, selectedOrder.currency)}</p>
-          <p><strong>Discount:</strong> {formatCurrency(selectedOrder.discount, selectedOrder.currency)}</p>
-          <p><strong>Loyalty Discount:</strong> {formatCurrency(selectedOrder.loyaltyDiscountAmount, selectedOrder.currency)}</p>
-          <p><strong>Shipping:</strong> {formatCurrency(selectedOrder.shipping, selectedOrder.currency)}</p>
-          <p><strong>Tax:</strong> {formatCurrency(selectedOrder.tax, selectedOrder.currency)}</p>
-
-          <hr />
-
-          <p className="text-lg">
-            <strong>Total:</strong> {formatCurrency(selectedOrder.total, selectedOrder.currency)}
-          </p>
-
         </div>
-      </div>
-
-      {/* Payment Section */}
-      <div className="mb-6">
-        <h3 className="text-lg font-light mb-2">Payment Info</h3>
-        
-        <div className="border p-4 bg-gray-50 text-sm space-y-1">
-
-          <p><strong>Method:</strong> {selectedOrder.paymentMethod}</p>
-          <p><strong>Status:</strong> {selectedOrder.paymentStatus}</p>
-
-          {/* Show only for Razorpay orders */}
-          {selectedOrder.paymentMethod === "razorpay" && (
-            <>
-              <p><strong>Razorpay Order ID:</strong> {selectedOrder.razorpayOrderId || "N/A"}</p>
-              <p><strong>Razorpay Payment ID:</strong> {selectedOrder.razorpayPaymentId || "N/A"}</p>
-
-              <p>
-                <strong>Gateway Response:</strong>
-                <pre className="bg-white border p-2 text-xs mt-1 overflow-auto max-h-40">
-                  {selectedOrder.paymentGatewayResponse || "N/A"}
-                </pre>
-              </p>
-            </>
-          )}
-
-        </div>
-      </div>
-
-      {/* Shipping Section */}
-      <div className="mb-6">
-        <h3 className="text-lg font-light mb-2">Shipping Info</h3>
-
-        <div className="border p-4 bg-gray-50 text-sm space-y-1">
-
-          <p><strong>Status:</strong> {selectedOrder.status}</p>
-          <p><strong>Tracking ID:</strong> {selectedOrder.shippingTrackingId || "N/A"}</p>
-          <p><strong>Partner:</strong> {selectedOrder.shippingPartner || "N/A"}</p>
-
-          {selectedOrder.shippedAt && (
-            <p><strong>Shipped At:</strong> {new Date(selectedOrder.shippedAt).toLocaleString()}</p>
-          )}
-
-        </div>
-          {/* Create Shipment Button */}
-<div className="mb-6 mt-6">
-  <button
-    onClick={() => setShowCreateShipment(true)}
-    className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition"
-  >
-    Create Shipment
-  </button>
-</div>
-{/* Create Shipment */}
-{showCreateShipment && (
-  <div className="mb-6 border-t pt-4">
-    <CreateShipmentAction
-    referenceType="Order"
-      shipmentType={
-        selectedOrder.shippingAddress?.country &&
-        selectedOrder.shippingAddress.country !== "India"
-          ? "International"
-          : "Domestic"
-      }
-      order={selectedOrder}
-      onSuccess={() => {
-        setShowCreateShipment(false);
-        setIsModalOpen(false);
-        fetchOrders();
-      }}
-    />
-  </div>
-)}
-
-
-      </div>
-
-      {/* Footer */}
-      <div className="text-right">
-        <button
-          onClick={() => setIsModalOpen(false)}
-          className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition"
-        >
-          Close
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
+      )}
 
 
     </div>

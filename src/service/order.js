@@ -9,3 +9,16 @@ export const getOrders = async () => {
     throw err;
   }
 };
+export const updateOrder = async (updateData) => {
+  try {
+    const response = await axiosService.Post(`/Admin/ChangeOrderStatus
+`, updateData); 
+    return response.data; // return API response data
+  } catch (err) {
+    console.error(
+
+      err.response?.data || err.message
+    );
+    throw err;
+  }
+};
