@@ -9,7 +9,7 @@ const UploadCSVPage = () => {
   const [failedRows, setFailedRows] = useState([]);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
- 
+  // handler for ap 
   const handleSubmit = async (e) => {
 
     e.preventDefault();
