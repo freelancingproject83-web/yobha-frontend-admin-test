@@ -17,8 +17,10 @@ const UploadCSVPage = () => {
     setLoader(true);
     try {
       const data = await AddProductCSV(file);
-      setMessage(`Uploaded! Inserted: ${data.inserted_count}, Failed: ${data.failed_count}`);
-      setFailedRows(data.failed || []);
+     setMessage(
+      `Uploaded! Inserted: ${data.inserted}, Failed: ${data.failed}`
+    );
+      setFailedRows(data.errors || []);
     } catch (err) {
       setMessage(err.response?.data?.message || "Upload failed");
       setFailedRows([]);
@@ -85,10 +87,10 @@ const UploadCSVPage = () => {
                 {failedRows.map((item, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="border px-4 py-2">
-                      {item.row?.product_id || "N/A"}
+                      {item?.productId || "N/A"}
                     </td>
                     <td className="border px-4 py-2 text-red-500">
-                      {item.reason}
+                      {item.error}
                     </td>
                   </tr>
                 ))}
