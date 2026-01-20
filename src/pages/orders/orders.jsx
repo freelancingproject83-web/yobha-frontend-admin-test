@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ArrowUpDown, RefreshCw, Eye } from "lucide-react";
+import { Search, ArrowUpDown, RefreshCw, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { GetAllOrdersAdmin } from "../../service/orders";
 import CreateShipmentAction from "../deliveryModal/deliveryModal";
 import { updateOrder } from "../../service/order";
@@ -14,18 +14,19 @@ export default function OrdersPage() {
   const [debouncedSearchId, setDebouncedSearchId] = useState("");
   const [sortBy, setSortBy] = useState("createdAt_desc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [paginationTouched, setPaginationTouched] = useState(false);
   console.log(selectedOrder)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCreateShipment, setShowCreateShipment] = useState(false);
   const [orderStatus, setOrderStatus] = useState(orders?.status || "");
   const [paymentStatus, setPaymentStatus] = useState(orders?.paymentStatus || "");
   const [statusLoading, setStatusLoading] = useState(false);
-  const orderStatusOptions = ["Pending", "Shipped", "Delivered", "Returned"];
+  const orderStatusOptions = ["Pending", "Shipped", "Delivered", "Returned", "Delivered"];
   const paymentStatusOptions = ["Pending", "Paid", "Refunded"];
 
   const sortOptions = [
@@ -40,24 +41,33 @@ export default function OrdersPage() {
       setError("");
 
       console.log("Fetching orders with params:", {
-        page: currentPage,
-        pageSize,
+        page: paginationTouched ? currentPage : 1,
+        pageSize: pageSize,
         id: debouncedSearchId,
         sort: sortBy
       });
 
-      const response = await GetAllOrdersAdmin(currentPage, pageSize, debouncedSearchId, sortBy);
+      const response = await GetAllOrdersAdmin(
+        paginationTouched ? currentPage : 1,
+        pageSize,
+        debouncedSearchId,
+        sortBy
+      );
 
       console.log("Orders response:", response);
 
       if (response && response.data) {
         setOrders(response.data);
-        setTotalPages(response.totalPages || 1);
-        setTotalOrders(response.totalCount || 0);
+        // Get pagination info from pagination object
+        const totalCount = response.pagination?.totalRecords || response.totalCount || response.total || 0;
+        const totalPagesValue = response.pagination?.totalPages || response.totalPages || Math.ceil(totalCount / pageSize) || 1;
+        setTotalPages(totalPagesValue);
+        setTotalOrders(totalCount);
       } else if (Array.isArray(response)) {
         setOrders(response);
-        setTotalPages(1);
         setTotalOrders(response.length);
+        // Calculate totalPages based on pageSize
+        setTotalPages(Math.ceil(response.length / pageSize) || 1);
       } else {
         setOrders([]);
         setTotalPages(1);
@@ -87,7 +97,7 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearchId, sortBy, navigate]);
+  }, [currentPage, pageSize, debouncedSearchId, sortBy, navigate, paginationTouched]);
 
   // Debounce search input
   useEffect(() => {
@@ -111,6 +121,7 @@ export default function OrdersPage() {
   }, [fetchOrders]);
 
   const handleSearch = () => {
+    setPaginationTouched(false);
     setCurrentPage(1);
     // Immediately trigger search without waiting for debounce
     setDebouncedSearchId(searchId);
@@ -118,6 +129,13 @@ export default function OrdersPage() {
 
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
+    setPaginationTouched(false);
+    setCurrentPage(1);
+  };
+
+  const handlePageSizeChange = (e) => {
+    setPageSize(Number(e.target.value));
+    setPaginationTouched(false);
     setCurrentPage(1);
   };
 
@@ -125,6 +143,7 @@ export default function OrdersPage() {
     setSearchId("");
     setDebouncedSearchId("");
     setIsSearching(false);
+    setPaginationTouched(false);
     setCurrentPage(1);
   };
 
@@ -253,7 +272,7 @@ const updatePaymentStatus = async (orderId, status) => {
           <h3 className="text-xl font-light text-black mb-2">Search & Filter</h3>
           <p className="text-gray-500 text-sm font-light">Find and sort orders</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Search by ID */}
           <div className="space-y-2">
             <label className="block text-sm font-light text-gray-700">
@@ -301,6 +320,24 @@ const updatePaymentStatus = async (orderId, status) => {
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Page Size */}
+          <div className="space-y-2">
+            <label className="block text-sm font-light text-gray-700">
+              Page Size
+            </label>
+            <select
+              value={pageSize}
+              onChange={handlePageSizeChange}
+              className="w-full border px-4 py-3 focus:outline-none transition-colors text-gray-900 bg-white text-sm font-light border-gray-300 focus:border-black"
+            >
+              <option value={1}>1 per page</option>
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+              <option value={100}>100 per page</option>
+            </select>
           </div>
 
           {/* Clear Search */}
@@ -473,31 +510,35 @@ const updatePaymentStatus = async (orderId, status) => {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600 font-light">
-                Showing page {currentPage} of {totalPages}
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1 || loading}
-                  className="px-3 py-1 border border-gray-300 text-sm text-black hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-light"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages || loading}
-                  className="px-3 py-1 border border-gray-300 text-sm text-black hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-light"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+        <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
+          <button
+            type="button"
+            onClick={() => {
+              setPaginationTouched(true);
+              setCurrentPage((p) => Math.max(1, p - 1));
+            }}
+            disabled={currentPage === 1 || loading}
+            className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm text-black hover:bg-gray-50 disabled:opacity-50 inline-flex items-center gap-2"
+          >
+            <ChevronLeft size={16} /> Prev
+          </button>
+          <div className="text-sm text-gray-600">
+            Page <strong>{totalPages > 0 ? currentPage : 0}</strong> of <strong>{totalPages}</strong>
           </div>
-        )}
+          <button
+            type="button"
+            onClick={() => {
+              setPaginationTouched(true);
+              setCurrentPage((p) =>
+                totalPages === 0 || p >= totalPages ? p : p + 1
+              );
+            }}
+            disabled={totalPages === 0 || currentPage >= totalPages || loading}
+            className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm text-black hover:bg-gray-50 disabled:opacity-50 inline-flex items-center gap-2"
+          >
+            Next <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
       {/* Order Details Modal */}
       {isModalOpen && selectedOrder && (
