@@ -3,13 +3,12 @@ import { CreateShipment } from "../../service/delivery";
 
 
 const PICKUP_DETAILS = {
-    pickupName: "Warehouse",
-    pickupPhone: "9504051829",
-    pickupCity: "Mohali",
-    PickupState: "Punjab",
-    pickupAddress:
-        "B 1503, Tower B, JLPL Galaxy Heights, Sector 66 A, Mohali, SAS Nagar",
-    pickupPincode: "140308",
+    pickupName: "Yobha Warehouse",
+    pickupPhone: "9876543210",
+    pickupCity: "Bangalore",
+    pickupState: "Karnataka",
+    pickupAddress: "Warehouse Address, Whitefield",
+    pickupPincode: "560066",
 };
 
 export default function CreateShipmentAction({
@@ -37,37 +36,34 @@ export default function CreateShipmentAction({
             isInternational: shipmentType === "International" ? true : false,
             weight: Number(weight),
             isCod: shipmentType === "International" ? true : order.paymentMethod === "COD" ? true : false,
-            commodity: "Apparel",
-            currency: order.currency,
-            CountryCode: "IN",
+            amount: order.total,
         };
 
         if (!isInternational) {
-            Object.assign(payload, {
-                ...PICKUP_DETAILS,
-                dropName: order.shippingAddress?.fullName,
-                dropPhone: order.shippingAddress?.mobileNumner,
-                dropAddress: `${order.shippingAddress?.line1}, ${order.shippingAddress?.city}`,
-                dropCity: order.shippingAddress?.city,
-                DropState: order.shippingAddress?.state,
-                dropPincode: order.shippingAddress?.zip,
-                ...(order.paymentMethod === "COD" && {
-                    codAmount: order.total,
-
-                }),
-            });
+            payload.pickupName = PICKUP_DETAILS.pickupName;
+            payload.pickupPhone = PICKUP_DETAILS.pickupPhone;
+            payload.pickupCity = PICKUP_DETAILS.pickupCity;
+            payload.pickupState = PICKUP_DETAILS.pickupState;
+            payload.pickupAddress = PICKUP_DETAILS.pickupAddress;
+            payload.pickupPincode = PICKUP_DETAILS.pickupPincode;
+            payload.dropName = order.shippingAddress?.fullName;
+            payload.dropPhone = order.shippingAddress?.mobileNumner;
+            payload.dropAddress = `${order.shippingAddress?.line1}, ${order.shippingAddress?.city}`;
+            payload.dropCity = order.shippingAddress?.city;
+            payload.dropState = order.shippingAddress?.state;
+            payload.dropPincode = order.shippingAddress?.zip;
+            payload.codAmount = order.paymentMethod === "COD" ? Number(order.total) : 0;
         }
 
         if (isInternational) {
-            Object.assign(payload, {
-                dropName: order.shippingAddress?.fullName,
-                dropAddress: `${order.shippingAddress?.line1}, ${order.shippingAddress?.city}`,
-                countryCode: order.shippingAddress?.countryCode,
-                dropCity: order.shippingAddress?.city || "N/A",
-                DropState: order.shippingAddress?.state || "N/A",
-                declaredValue: order.total,
-
-            });
+            payload.currency = order.currency;
+            payload.CountryCode = "IN";
+            payload.dropName = order.shippingAddress?.fullName;
+            payload.dropAddress = `${order.shippingAddress?.line1}, ${order.shippingAddress?.city}`;
+            payload.countryCode = order.shippingAddress?.countryCode;
+            payload.dropCity = order.shippingAddress?.city || "N/A";
+            payload.dropState = order.shippingAddress?.state || "N/A";
+            payload.declaredValue = order.total;
         }
 
         try {
