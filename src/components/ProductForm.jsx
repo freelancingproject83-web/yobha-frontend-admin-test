@@ -74,8 +74,8 @@ const ProductForm = ({
         Description: initialData.description || initialData.Description || "",
         
         // Pricing
-        Price: typeof initialData.price === 'object' ? parseFloatValue(initialData.price.$numberDecimal || "0") : parseFloatValue(initialData.price || initialData.Price || "0"),
-        CompareAtPrice: typeof initialData.compareAtPrice === 'object' ? parseFloatValue(initialData.compareAtPrice.$numberDecimal || "0") : parseFloatValue(initialData.compareAtPrice || initialData.CompareAtPrice || "0"),
+        Price: typeof initialData.price === 'object' && initialData.price !== null ? parseFloatValue(initialData.price.$numberDecimal || "0") : parseFloatValue(initialData.price || initialData.Price || "0"),
+        CompareAtPrice: typeof initialData.compareAtPrice === 'object' && initialData.compareAtPrice !== null ? parseFloatValue(initialData.compareAtPrice.$numberDecimal || "0") : parseFloatValue(initialData.compareAtPrice || initialData.CompareAtPrice || "0"),
         
         // Categories
         ProductCategory: initialData.productCategory || initialData.Category || "",
