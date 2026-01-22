@@ -172,12 +172,12 @@ const BuybackDetailsModal = ({ data, onClose }) => {
           )}
         </div>
         {data.loyaltyPoints  && <div className="mb-6 mt-6 mx-6">
-          <button
+          {/* <button
             onClick={() => setShowCreateShipment(true)}
             className="px-6 py-2  bg-black text-white hover:bg-gray-800 transition"
           >
             Create Shipment
-          </button>
+          </button> */}
         </div>}
 {/* 
         {showCreateShipment && (
