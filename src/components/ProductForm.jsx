@@ -784,7 +784,7 @@ const ProductForm = ({
                 onChange={(e) => update("ProductSubCategory", e.target.value)}
                 className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-black transition-colors text-gray-900 bg-white placeholder:text-gray-400 text-sm font-light"
                 placeholder="Enter Sub Category"
-                required
+                
               />
             </div>
           </div>
