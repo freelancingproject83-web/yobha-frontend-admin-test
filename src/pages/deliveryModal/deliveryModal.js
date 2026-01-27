@@ -3,12 +3,12 @@ import { CreateShipment } from "../../service/delivery";
 
 
 const PICKUP_DETAILS = {
-    pickupName: "Yobha Warehouse",
-    pickupPhone: "9876543210",
-    pickupCity: "Bangalore",
-    pickupState: "Karnataka",
-    pickupAddress: "Warehouse Address, Whitefield",
-    pickupPincode: "560066",
+    pickupName: "JLPL Galaxy Heights",
+    pickupPhone: "9504051829",
+    pickupCity: "Mohali",
+    pickupState: "Punjab",
+    pickupAddress: "Building No./Flat No.: B 1503, Tower B\nName Of Premises/Building: JLPL Galaxy Heights\nRoad/Street: Sector 66 A\nLocality/Sub Locality: Sector 66A\n",
+    pickupPincode: "140308",
 };
 
 export default function CreateShipmentAction({
@@ -35,7 +35,7 @@ export default function CreateShipmentAction({
             referenceType: referenceType,
             isInternational: shipmentType === "International" ? true : false,
             weight: Number(weight),
-            isCod: shipmentType === "International" ? true : order.paymentMethod === "COD" ? true : false,
+            isCod: shipmentType === "International" ? false : order.paymentMethod === "COD" ? true : false,
             amount: order.total,
         };
 

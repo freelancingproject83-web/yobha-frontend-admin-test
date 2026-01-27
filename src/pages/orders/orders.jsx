@@ -8,6 +8,7 @@ import { updateOrder } from "../../service/order";
 export default function OrdersPage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
+  console.log(orders , "orders")
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchId, setSearchId] = useState("");
@@ -715,12 +716,13 @@ const updatePaymentStatus = async (orderId, status) => {
               </div>
 
               <div className="mb-6 mt-6">
-                <button
+              {   <button
                   onClick={() => setShowCreateShipment(true)}
                   className="px-6 py-2 bg-black text-white hover:bg-gray-800 transition"
                 >
                   Create Shipment
-                </button>
+                </button>}
+                <div>awb:{orders[0]?.deliveryDetails?.awb}</div>
               </div>
               {/* Create Shipment */}
               {showCreateShipment && (
