@@ -4,6 +4,7 @@ import { RegisterUser } from "../../service/login";
 import logoImage from "../../assets/YOBHA_logo_final.png";
 import { LocalStorageKeys } from "../../constants/localStorageKeys";
 import { Link } from "react-router-dom";
+import { RegisterAdmin } from "../../service/admin";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const signupResponse = await RegisterUser(formData);
+      const signupResponse = await RegisterAdmin(formData);
       const { token, refreshToken, user } = signupResponse.data;
 
       // Store tokens in localStorage

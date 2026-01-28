@@ -618,6 +618,7 @@ const updatePaymentStatus = async (orderId, status) => {
                 <p><strong>Loyalty Discount:</strong> {formatCurrency(selectedOrder.loyaltyDiscountAmount, selectedOrder.currency)}</p>
                 <p><strong>Shipping:</strong> {formatCurrency(selectedOrder.shipping, selectedOrder.currency)}</p>
                 <p><strong>Tax:</strong> {formatCurrency(selectedOrder.tax, selectedOrder.currency)}</p>
+                <p><strong>Gift Wrap:</strong> {formatCurrency(selectedOrder.total - ((selectedOrder.subTotal +selectedOrder.shipping +selectedOrder.tax) -selectedOrder.discount), selectedOrder.currency)}</p>
 
                 <hr />
 

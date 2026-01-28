@@ -428,9 +428,9 @@ const Returns = () => {
                     <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-[#8a7643]">
                       Actions
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-[#8a7643]">
+                    {/* <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-[#8a7643]">
                       Reverse Pickup
-                    </th>
+                    </th> */}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
@@ -505,7 +505,7 @@ const Returns = () => {
                             Update
                           </button>
                         </td>
-                        <td className="px-6 py-5 text-sm text-right">
+                        {/* <td className="px-6 py-5 text-sm text-right">
 
                           <button
                             onClick={() => setShowCreateShipment(true)}
@@ -513,7 +513,7 @@ const Returns = () => {
                           >
                             Create Shipment
                           </button>
-                        </td>
+                        </td> */}
                       </tr>
                     );
                   })}

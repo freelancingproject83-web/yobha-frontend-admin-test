@@ -242,7 +242,7 @@ const Buyback = () => {
                       (it.customer ? `${it.customer.firstName || ""} ${it.customer.lastName || ""}`.trim() : "") ||
                       it.userName ||
                       "—";
-                    const status = it.status || it.state || "—";
+                    const status = it.paymentStatus || it.paymentStatus || "—";
                     const created = it.createdAt || it.requestedAt || it.date || null;
                     const createdAt = created ? new Date(created).toLocaleString() : "—";
                     const amount = it.amount || it.refundAmount || 0;
