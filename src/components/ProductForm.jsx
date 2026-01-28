@@ -1940,6 +1940,17 @@ const ProductForm = ({
                 <option value="false">No</option>
               </select>
             </div>
+             <div className="space-y-2">
+              <label className="block text-sm font-light text-gray-700">Is Active (is in stock)</label>
+              <select
+                value={data.IsActive}
+                onChange={(e) => update("IsActive", e.target.value === "true")}
+                className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-black transition-colors text-gray-900 bg-white text-sm font-light"
+              >
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </div>
           </div>
         </div>
 
