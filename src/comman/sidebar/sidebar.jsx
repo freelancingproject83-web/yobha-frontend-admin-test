@@ -9,6 +9,7 @@ import {
   Briefcase,
   FilePlus2,
   RotateCcw,
+  UserPlus,
 } from "lucide-react";
 import * as localStorageService from "../../service/localStorageService";
 
@@ -70,6 +71,11 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       icon: ShoppingCart,
       path: "/buyback",
  
+    },
+    {
+      title: "Create Admin",
+      icon: UserPlus,
+      path: "/create-admin"
     },
    
     {

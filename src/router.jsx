@@ -24,7 +24,8 @@ const Buyback = lazy(() => import("./pages/buyback/buyback"));
 const CreateCareerJob = lazy(() => import("./pages/careers/create-job"));
 const CareerJobs = lazy(() => import("./pages/careers/jobs"));
 const Returns = lazy(() => import("./pages/returns/returns"));
-const BulkUpload = lazy(() => import("./pages/product/bulkUpload"))
+const BulkUpload = lazy(() => import("./pages/product/bulkUpload"));
+const CreateAdmin = lazy(() => import("./pages/admin/create-admin"));
 
 const Router = () => {
   return (
@@ -143,6 +144,16 @@ const Router = () => {
             <PrivateRoute>
               <AppLayout>
                 <BulkUpload />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/create-admin"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <CreateAdmin />
               </AppLayout>
             </PrivateRoute>
           }
