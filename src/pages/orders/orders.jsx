@@ -27,7 +27,7 @@ export default function OrdersPage() {
   const [orderStatus, setOrderStatus] = useState(orders?.status || "");
   const [paymentStatus, setPaymentStatus] = useState(orders?.paymentStatus || "");
   const [statusLoading, setStatusLoading] = useState(false);
-  const orderStatusOptions = ["Pending", "Shipped", "Delivered", "Returned", "Delivered"];
+  const orderStatusOptions = ["Pending", "Shipped", "Processing", "Delivered", "Returned", "Cancelled"];
   const paymentStatusOptions = ["Pending", "Paid", "Refunded"];
 
   const sortOptions = [
@@ -570,6 +570,7 @@ const updatePaymentStatus = async (orderId, status) => {
                 <p>
                   <strong>Address:</strong>{" "}
                   {selectedOrder.shippingAddress?.line1 || "N/A"},{" "}
+                   {selectedOrder.shippingAddress?.line2 || "N/A"},{" "}
                   {selectedOrder.shippingAddress?.city || "N/A"},{" "}
                   {selectedOrder.shippingAddress?.state || "N/A"},{" "}
                   {selectedOrder.shippingAddress?.zip || "N/A"}
