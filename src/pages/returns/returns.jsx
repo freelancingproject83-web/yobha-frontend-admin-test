@@ -41,6 +41,10 @@ const Returns = () => {
   const [editStatus, setEditStatus] = useState("");
   const [editRemarks, setEditRemarks] = useState("");
 
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState("");
+  const [selectedImageName, setSelectedImageName] = useState("");
+
   const totalPages = useMemo(() => {
     if (!total || !pageSize) return 0;
     return Math.ceil(total / pageSize);
@@ -280,6 +284,29 @@ const Returns = () => {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenImageModal = (imageUrl, productName) => {
+    setSelectedImageUrl(imageUrl);
+    setSelectedImageName(productName);
+    setImageModalOpen(true);
+  };
+
+  const handleCloseImageModal = () => {
+    setImageModalOpen(false);
+    setSelectedImageUrl("");
+    setSelectedImageName("");
+  };
+
+  const handleCopyImageLink = async (imageUrl) => {
+    try {
+      await navigator.clipboard.writeText(imageUrl);
+      setSuccess("Image link copied to clipboard!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError("Failed to copy image link");
+      setTimeout(() => setError(""), 3000);
     }
   };
 
@@ -828,6 +855,9 @@ const Returns = () => {
                                     Item
                                   </th>
                                   <th className="px-3 py-2 text-left font-medium">
+                                    Image
+                                  </th>
+                                  <th className="px-3 py-2 text-left font-medium">
                                     Qty
                                   </th>
                                   <th className="px-3 py-2 text-left font-medium">
@@ -854,10 +884,34 @@ const Returns = () => {
                                     it.unitPrice ||
                                     it.amount ||
                                     null;
+                                  const thumbnailUrl = it.thumbnailUrl || it.imageUrl || null;
                                   return (
                                     <tr key={idx}>
                                       <td className="px-3 py-2">
                                         {name}
+                                      </td>
+                                      <td className="px-3 py-2">
+                                        {thumbnailUrl ? (
+                                          <div className="flex items-center gap-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => handleOpenImageModal(thumbnailUrl, name)}
+                                              className="text-blue-600 hover:text-blue-800 underline text-xs"
+                                            >
+                                              View Image
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleCopyImageLink(thumbnailUrl)}
+                                              className="text-gray-600 hover:text-gray-800 text-xs"
+                                              title="Copy image link"
+                                            >
+                                              📋
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <span className="text-gray-400 text-xs">No image</span>
+                                        )}
                                       </td>
                                       <td className="px-3 py-2">
                                         {qty}
@@ -963,6 +1017,51 @@ const Returns = () => {
                 })}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Image Modal */}
+      {imageModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-medium text-black">
+                  Product Image
+                </h2>
+                <p className="text-xs text-gray-500">
+                  {selectedImageName}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCopyImageLink(selectedImageUrl)}
+                  className="rounded-full border border-gray-300 bg-white px-3 py-1 text-xs text-gray-700 hover:bg-gray-50"
+                  title="Copy image link"
+                >
+                  📋 Copy Link
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseImageModal}
+                  className="rounded-full border border-gray-300 bg-white px-3 py-1 text-xs text-gray-700 hover:bg-gray-50"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <img
+                src={selectedImageUrl}
+                alt={selectedImageName}
+                className="max-w-full max-h-96 object-contain rounded-lg"
+                onError={(e) => {
+                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5Q0E0QUYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZSBub3QgYXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=';
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
